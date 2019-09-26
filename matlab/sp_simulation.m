@@ -97,14 +97,23 @@ freq(end)=[];
 [maxX,indMax]=max(X);
 RMS_X=20*log10(sqrt(mean(x.^2)));
 
+%Estimate noise floor according to Gorga 1983
+[~,ind]=min(abs(F3-freq));
+%Gorga used 3 bins up and 3 bins below response to estimate noise floor
+%his bin width was close to 50 Hz
+[~,LB]=min(abs((F3-150)-freq));
+[~,UB]=min(abs((F3+150)-freq));
+respEst=X(ind);
+noiseEst=mean([mean(X(LB:ind-1)) mean(X(ind+1:UB))]);
+
 %Plot everything
 plot(freq,X,clr(nwin)); hold on
 grid on
-title(['Fmax= ' num2str(maxX) ' dB, Amp= ' num2str(A) ' dB, x RMS (dB) = ' num2str(RMS_X) ' , Fmax= ' num2str(freq(indMax))])
+title(['Fmax= ' num2str(maxX) ' dB, F1= ' num2str(F1) ' dB, RMS X = ' num2str(RMS_X) ' ,Amp= ' num2str(A)])
 xlabel('Frequency (Hz)')
 ylabel('Power/Frequency (dB/Hz)')
 xlim([0 4000])
-
+WIN{nwin}=[ WIN{nwin} ' SNR:' num2str(num2str(respEst-noiseEst))];
 end
 legend(WIN(:))
 
